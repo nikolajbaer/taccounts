@@ -1,0 +1,79 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: #fafafa;
+  font-family: 'Helvetica Neue', arial, sans-serif;
+  font-weight: 400;
+  color: #444;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+  text-align: center;
+  background-color: white;
+  color: black;
+  font-size: 1.5em;
+}
+
+nav {
+  height: 30px;
+  background-color: #999;
+}
+nav h1 {
+  margin: 0px;
+  padding: 4px;
+  font-size: 14pt;
+  color: #333;
+}
+
+section.accounts {
+  padding: 4px;
+  display: grid;
+  grid-template-columns: 208px; 
+}
+
+.link {
+  color: #fff;
+}
+
+.taccount {
+  border: 1px solid black;
+  padding: 4px;
+  width: 200px;
+  min-width: 150px;
+  min-height: 150px;
+  margin: 4px;
+  border-radius: 4px;
+  box-shadow: 3px 3px 6px -1px rgba(0,0,0,0.25);
+}
+
+.taccount h4 {
+  padding: 2px;
+  margin: 0px;
+  text-align: center;
+  font-size: 12pt;
+}
+
+.taccount .lines {
+  font-size: 10pt;
+  border-top: solid 1px black;
+}
+.taccount .lines .line {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+.taccount .lines .line div:nth-child(1){
+  border-right: solid 1px black;
+}
+.taccount .lines .line div:nth-child(3){
+  display: none; /* TODO hover display notes */
+}

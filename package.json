@@ -1,0 +1,19 @@
+{
+  "name": "taccounts",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "preact": "^10.5.15"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.1.5",
+    "ts-jest": "^27.1.4",
+    "vite": "^2.7.2",
+    "vitest": "^0.9.3"
+  }
+}
