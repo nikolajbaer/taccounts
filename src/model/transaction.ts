@@ -14,11 +14,13 @@ export class Transaction {
   date: Date
   lines: TxnLine[]
   comment: string
+  index: number|null
 
-  constructor(ref: string | number | null = null,date: Date | null = null){
+  constructor(ref: string | number | null = null,date: Date | null = null, index: number|null = null){
     this.ref = ref // TODO fill with crypto.randomUUID()?
     this.date = date == null ? new Date() : date
     this.lines = []
+    this.index = index 
   }
 
   debit(account:string,amount:number,note:string | null = null, data: any | null = null){
@@ -49,8 +51,10 @@ export class Transaction {
 
   total_for(account:string){
     return {
+      index: this.index,
       credit: this.for(account).reduce( (t,l) => t+l.credit, 0),
       debit: this.for(account).reduce( (t,l) => t+l.debit, 0),
+      account: account
     }
   }
 

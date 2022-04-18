@@ -62,8 +62,14 @@ export class Ledger {
         throw new TransactionValidationError("No such root account: " + account)
       }
     })
+    // Index is 1-based, where 0 is the Beginning Balance at the start of the period
+    transaction.index = this.transactions.length + 1
     this.transactions.push(transaction)
     return this
+  }
+
+  get(index:number){
+    return this.transactions[index-1]
   }
 
   get_account_def(account: string){
@@ -77,19 +83,26 @@ export class Ledger {
     return null
   }
 
-  balance(account:string){
+  up_to(up_to:number|null){
+    if(up_to == null){ return this.transactions }
+    return this.transactions.filter( t => t.index <= up_to )
+  }
+
+  balance(account:string,up_to:number|null=null){
     const adef = this.get_account_def(account)
     const bb = adef.beginning_balance?adef.beginning_balance:0
-    return this.transactions.reduce( (a,txn) => {
+       
+    return this.up_to(up_to).reduce( (a,txn) => {
       const vals = txn.total_for(account)
       a += (adef.credit_normal)?(vals.credit - vals.debit):(vals.debit - vals.credit)
       return a
     },bb)
   }
 
-  lines_for(account:string){
-    return this.transactions.reduce( (lines,txn) => {
-      return lines.concat(txn.for(account))
+  lines_for(account:string,up_to:number|null=null){
+    return this.up_to(up_to).reduce( (lines,txn) => {
+      lines.push(txn.total_for(account))
+      return lines
     },[])
   }
 
@@ -108,6 +121,10 @@ export class Ledger {
 
   accounts(){
     return this.account_def.sort(sort_accounts)
+  }
+
+  latest_index(){
+    return this.transactions[this.transactions.length-1].index
   }
 }
 

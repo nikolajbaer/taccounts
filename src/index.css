@@ -5,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
   background: #fafafa;
-  font-family: 'Helvetica Neue', arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   color: #444;
   -webkit-font-smoothing: antialiased;
@@ -26,13 +26,13 @@ body {
 
 nav {
   height: 30px;
-  background-color: #999;
+  background-color: black;
 }
 nav h1 {
   margin: 0px;
   padding: 4px;
   font-size: 14pt;
-  color: #333;
+  color: white;
 }
 
 section.accounts {
@@ -78,6 +78,17 @@ section.accounts {
   grid-template-columns: 10% 40% 40% 10%;
   text-align: left;
 }
+.taccount .lines .line.selected {
+  /*animation: fadeIn 0.1s;*/
+  background-color: #EEEEEE
+}
+/*
+@keyframes fadeIn {
+  0% { opacity: 0; background-color: #333; color: #FFFFFF }
+  100% { opacity:1; color: #000000; background-color: #EEEEEE}
+}
+*/
+
 .taccount .lines div.debit{
   padding-right: 4px;
   text-align: right;
@@ -112,3 +123,80 @@ section.accounts {
 .account_type_L { background-color: lightblue; }
 .account_type_CL { background-color: lightblue; }
 .account_type_E { background-color: orange; }
+
+
+.transactions .txn_log {
+  border-top: 1px solid black;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  padding-top: 8px;
+  height: 60px;
+}
+
+.transactions h4 {
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 0px;
+}
+
+.txn_log .txn {
+  font-size: 8pt;
+  margin: 4px;
+  float: left;
+  padding: 4px;
+  border-radius: 2pt;
+  background-color: #999;
+  color: #333;
+  min-width: 20px;
+  cursor: pointer;
+}
+.txn_log .txn.selected {
+  background-color: black;
+  color: white;
+}
+.txn_log .txn.after {
+  background-color: #eee;
+  color: #999;
+}
+
+.txn_log .txn.bb {
+  font-weight: bold;
+}
+.txn_log .new_txn {
+  background-color: cornflowerblue;
+  color: white;
+}
+
+.transaction_detail {
+  position: fixed;
+  bottom: 60px;
+  left: 0px;
+  font-size: 10pt;
+  border-top: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.transaction_detail h4 {
+  padding: 0px;
+  margin: 0px;
+  text-align: left;
+  font-size: 12pt;
+}
+.transaction_detail .line {
+  text-align: left;
+  margin: 4px;
+  display: grid;
+  grid-template-columns: 40% 15% 15% 20% 10%;
+  border-top: 1px solid #eee;
+  gap: 4px;
+}
+
+.transaction_detail .line input.debit {
+  text-align: right;
+}
+.transaction_detail .line input.credit {
+  text-align: right;
+}

@@ -1,6 +1,9 @@
+import { useState,useEffect } from "preact/hooks"
 import { TAccount } from "./ui/taccount"
 import { Transaction } from "./model/transaction"
 import { Ledger } from "./model/ledger"
+import { TransactionLog } from "./ui/transactionlog"
+import { TransactionDetail } from "./ui/transactiondetail"
 
 const test_ledger = new Ledger()
   .asset("Inventory")
@@ -40,6 +43,13 @@ window.ledger = test_ledger
 window.Transaction = Transaction
 
 export function App(props) {
+  const [selected,setSelected] = useState<number>(null)
+
+  useEffect( () => {
+    if(selected == null){
+      setSelected(test_ledger.latest_index())
+    }
+  })
 
   return (
     <>
@@ -50,10 +60,25 @@ export function App(props) {
         {test_ledger.active_accounts().map( account_def => {
           return (<TAccount
             account_def={account_def}
-            lines={test_ledger.lines_for(account_def.account)}
-            balance={test_ledger.balance(account_def.account)}
+            lines={test_ledger.lines_for(account_def.account,selected)}
+            balance={test_ledger.balance(account_def.account,selected)}
+            selected={selected}
           ></TAccount>)
         })}
+      </section>
+      {(selected==null||selected==0)?"":(
+        <section className="transaction_detail">
+          <TransactionDetail 
+            transaction={test_ledger.get(selected)}
+          ></TransactionDetail>
+        </section>
+      )}
+      <section className="transactions">
+        <TransactionLog
+          ledger={test_ledger}
+          selected={selected}
+          txnSelected={(txn) => setSelected(txn)}
+        ></TransactionLog>
       </section>
     </>
   )
