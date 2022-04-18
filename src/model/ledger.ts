@@ -4,14 +4,19 @@ export enum AccountType {
   Asset = "A",
   Liability = "L",
   Equity = "E",
-  ContraAsset = "CA",
-  ContraLiability = "CL",
 }
 
 export interface AccountDef {
   account: string
+  name: string | null
   type: AccountType
-  beginning_balance: number
+  credit_normal: boolean,
+  beginning_balance: number,
+}
+
+function sort_accounts(account_a:AccountDef,account_b:AccountDef){
+  const M = {"A":0,"L":1,"E":2}
+  return M[account_a.type] - M[account_b.type]
 }
 
 export class Ledger {
@@ -23,16 +28,32 @@ export class Ledger {
     this.account_def = []
   }
 
-  define(account_name: string,account_type: AccountType,beginning_balance:number = 0){
-    this.account_def.push({account:account_name,type:account_type,beginning_balance:beginning_balance})
+  define(
+    account_name: string,
+    account_type: AccountType,
+    credit_normal: boolean,
+    beginning_balance:number = 0,
+    name: string | null = null
+  ){
+    this.account_def.push({
+      account:account_name,
+      type:account_type,
+      credit_normal:credit_normal,
+      beginning_balance:beginning_balance,
+      name: name
+    })
     return this
   }
   // Convenience functions for readable API
-  asset(account_name: string,beginning_balance:number = 0){ return this.define(account_name,AccountType.Asset) }
-  liability(account_name: string,beginning_balance:number = 0){ return this.define(account_name,AccountType.Liability) }
-  equity(account_name: string,beginning_balance:number = 0){ return this.define(account_name,AccountType.Equity) }
-  contra_asset(account_name: string,beginning_balance:number = 0){ return this.define(account_name,AccountType.ContraAsset) }
-  contra_liability(account_name: string,beginning_balance:number = 0){ return this.define(account_name,AccountType.ContraLiability) }
+  asset(account_name: string,beginning_balance:number = 0,name: string|null = null,credit_normal:boolean=false){ 
+    return this.define(account_name,AccountType.Asset,credit_normal,beginning_balance,name) 
+  }
+  liability(account_name: string,beginning_balance:number = 0,name: string|null = null,credit_normal:boolean=true){ 
+    return this.define(account_name,AccountType.Liability,credit_normal,beginning_balance,name) 
+  }
+  equity(account_name: string,beginning_balance:number = 0,name: string|null = null,credit_normal:boolean=true){ 
+    return this.define(account_name,AccountType.Equity,credit_normal,beginning_balance,name) 
+  }
 
   txn(transaction){
     transaction.validate()
@@ -56,12 +77,14 @@ export class Ledger {
     return null
   }
 
-  balance(account:string,beginning_balance: number = 0){
+  balance(account:string){
+    const adef = this.get_account_def(account)
+    const bb = adef.beginning_balance?adef.beginning_balance:0
     return this.transactions.reduce( (a,txn) => {
       const vals = txn.total_for(account)
-      a += vals.debit - vals.credit
+      a += (adef.credit_normal)?(vals.credit - vals.debit):(vals.debit - vals.credit)
       return a
-    },beginning_balance)
+    },bb)
   }
 
   lines_for(account:string){
@@ -71,23 +94,20 @@ export class Ledger {
   }
 
   active_accounts(){
-    const txn_accounts = Object.keys(
-      this.transactions.reduce( (accounts,txn) => {
-        txn.lines.forEach( l => { 
-          if(!accounts[l.account]){ accounts[l.account] = 1}
-          else{ accounts[l.account] += 1 }
-        })
-        return accounts
-      },{})
-    )
+    const txn_accounts = Array.from(this.transactions.reduce( (accounts,txn) => {
+      txn.lines.forEach( l => { 
+        if(!accounts.has(l.account)){ 
+          accounts.set(l.account,this.get_account_def(l.account))
+        }
+      })
+      return accounts
+    },new Map<String,AccountDef>()).values())
 
-    return this.accounts().filter( adef => {
-      return txn_accounts.includes(adef.account)
-    })
+    return txn_accounts.sort(sort_accounts)
   }
 
   accounts(){
-    return this.account_def
+    return this.account_def.sort(sort_accounts)
   }
 }
 

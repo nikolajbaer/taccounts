@@ -5,7 +5,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "mocha"
+    "test": "vitest"
   },
   "dependencies": {
     "preact": "^10.5.15"

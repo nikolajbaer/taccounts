@@ -37,8 +37,6 @@ nav h1 {
 
 section.accounts {
   padding: 4px;
-  display: grid;
-  grid-template-columns: 208px; 
 }
 
 .link {
@@ -46,6 +44,7 @@ section.accounts {
 }
 
 .taccount {
+  float: left;
   border: 1px solid black;
   padding: 4px;
   width: 200px;
@@ -57,10 +56,17 @@ section.accounts {
 }
 
 .taccount h4 {
-  padding: 2px;
   margin: 0px;
   text-align: center;
-  font-size: 12pt;
+  font-size: 10pt;
+  padding-bottom: 4px;
+}
+.account_type {
+  display: inline;
+  font-size: 8pt;
+  border-radius: 4pt;
+  color: #333;
+  padding: 2px 4px 2px 4px;
 }
 
 .taccount .lines {
@@ -69,11 +75,40 @@ section.accounts {
 }
 .taccount .lines .line {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 10% 40% 40% 10%;
+  text-align: left;
 }
-.taccount .lines .line div:nth-child(1){
+.taccount .lines div.debit{
+  padding-right: 4px;
+  text-align: right;
   border-right: solid 1px black;
 }
-.taccount .lines .line div:nth-child(3){
+.taccount .lines div.credit{
+  padding-left: 4px;
+  text-align: left;
+}
+
+.taccount .lines .line .linestart {
+  text-align: left; 
+}
+.taccount .lines .line .lineend {
+  text-align: right;
+}
+.taccount .lines .line .note {
   display: none; /* TODO hover display notes */
 }
+
+.taccount .lines .balance {
+  border-top: solid 1px black;
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+.taccount .lines .balance div {
+  font-weight: bold;
+}
+
+.account_type_A { background-color: lightgreen; }
+.account_type_CE { background-color: lightgreen; }
+.account_type_L { background-color: lightblue; }
+.account_type_CL { background-color: lightblue; }
+.account_type_E { background-color: orange; }
