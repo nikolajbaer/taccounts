@@ -172,11 +172,14 @@ section.accounts {
 
 .transaction_detail {
   position: fixed;
+  min-width: 400px;
   bottom: 60px;
   left: 0px;
   font-size: 10pt;
   border-top: solid 1px black;
   border-right: solid 1px black;
+  padding: 10px 10px 20px 10px;
+  z-index: 1000;
 }
 
 .transaction_detail h4 {
@@ -185,18 +188,61 @@ section.accounts {
   text-align: left;
   font-size: 12pt;
 }
+
+.transaction_detail .header div{
+  text-align: center;
+  font-weight: bold;
+}
+.transaction_detail .header div:nth-child(1){
+  text-align: left;
+  border-left: none;
+}
+.transaction_detail .header div:nth-child(4){
+  text-align: left;
+}
 .transaction_detail .line {
   text-align: left;
   margin: 4px;
   display: grid;
   grid-template-columns: 40% 15% 15% 20% 10%;
-  border-top: 1px solid #eee;
   gap: 4px;
 }
 
-.transaction_detail .line input.debit {
-  text-align: right;
+.transaction_detail .line .debit {
+  text-align: center;
+  border-left: 1px solid #eee;
+  padding-left: 4px;
 }
-.transaction_detail .line input.credit {
+.transaction_detail .line .credit {
+  text-align: center;
+  border-left: 1px solid #eee;
+}
+.transaction_detail .line .notes {
   text-align: right;
+  border-left: 1px solid #eee;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.modal {
+  position: fixed;   
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content  {
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  margin: 60px auto;
+  max-width: 400px;
+}
+
+.txn_add {
+
 }

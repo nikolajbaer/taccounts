@@ -4,7 +4,7 @@ export function TransactionDetail(props){
   return (<div className="txn_detail">
     <h4>{props.transaction.ref?props.transaction.ref:`Transaction #${props.transaction.index}`}</h4>
     <div>
-      <div class="line">
+      <div class="line header">
         <div>Account</div>
         <div>Debit</div>
         <div>Credit</div>
@@ -13,10 +13,10 @@ export function TransactionDetail(props){
       {props.transaction.lines.map( l => {
         return (
         <div class="line">
-            <input type="text" disabled className="account" value={l.account} />
-            <input type="number" disabled className="debit" value={l.debit} />
-            <input type="number" disabled className="credit" value={l.credit} />
-            <input type="text" disabled className="notes" value={l.notes} />
+            <span className="account">{l.account} </span>
+            <span className="debit">{money(l.debit)}</span>
+            <span className="credit">{money(l.credit)}</span> 
+            <span className="notes">{l.notes}</span> 
         </div>
         )
       })}

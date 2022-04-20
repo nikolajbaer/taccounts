@@ -61,7 +61,7 @@ export class Transaction {
   validate(){
     const debits = this.lines.reduce( (t,l) => t+l.debit, 0)
     const credits = this.lines.reduce( (t,l) => t+l.credit, 0)
-    if(debits != credits){
+    if(debits != credits || this.lines.length == 0){
       throw new TransactionValidationError("Credits and Debits do not match")
     }
     return this

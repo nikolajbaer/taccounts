@@ -1,9 +1,11 @@
-import { useState,useEffect } from "preact/hooks"
+import { useState,useEffect,useRef } from "preact/hooks"
 import { TAccount } from "./ui/taccount"
 import { Transaction } from "./model/transaction"
 import { Ledger } from "./model/ledger"
 import { TransactionLog } from "./ui/transactionlog"
 import { TransactionDetail } from "./ui/transactiondetail"
+import { useEventListener } from "./util/helpers"
+import { NewTransactionModal } from "./ui/newtransaction"
 
 const test_ledger = new Ledger()
   .asset("Inventory")
@@ -16,8 +18,8 @@ const test_ledger = new Ledger()
   .equity("Revenue")
   .txn(
     new Transaction()
-          .debit('Inventory/Widgets',10)
-          .debit('Inventory/DooDads',10)
+          .debit('Inventory',10)
+          .debit('Inventory',10)
           .debit('Cash',2)
           .credit('SE',22,"New Investor")
           .add_comment('Initial investment')
@@ -28,7 +30,7 @@ const test_ledger = new Ledger()
           .credit('Sales Tax Payable',1)
           .credit('Revenue',4)
           .debit('COGS',5)
-          .credit('Inventory/Widgets',5)
+          .credit('Inventory',5)
           .add_comment('Invoice #1')
           .validate()
   ).txn(
@@ -44,6 +46,26 @@ window.Transaction = Transaction
 
 export function App(props) {
   const [selected,setSelected] = useState<number>(null)
+  const [showNewTransaction,setShowNewTransaction]  = useState<boolean>(false)
+
+  const handleKeyPress = ({key}) => {
+    /* only handle shortcuts if body is focused */
+    if( document.activeElement.tagName != "BODY"){ return }
+    if(key == " " ){
+      setShowNewTransaction(true)
+    }else if(key == "Escape" && showNewTransaction){
+      setShowNewTransaction(false)
+    }
+  }
+
+  const handleCloseNewTransaction = (transaction:Transaction|null) => {
+    if(transaction != null){
+      test_ledger.txn(transaction)
+    }
+    setShowNewTransaction(false)
+  }
+
+  useEventListener('keydown', handleKeyPress, document)
 
   useEffect( () => {
     if(selected == null){
@@ -80,6 +102,15 @@ export function App(props) {
           txnSelected={(txn) => setSelected(txn)}
         ></TransactionLog>
       </section>
+      {showNewTransaction?(
+        <div className="modal">
+          <div className="modal-content">
+            <NewTransactionModal
+              handleClose={handleCloseNewTransaction}
+            ></NewTransactionModal>
+          </div>
+        </div>
+      ):''}
     </>
   )
 }
