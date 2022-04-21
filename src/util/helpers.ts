@@ -1,4 +1,4 @@
-import { useEffect,useRef } from "preact/hooks"
+import { useEffect,useRef } from "react"
 
 export function money(amount:number,show_zero:boolean = false){
   if(!show_zero && (amount == 0 || amount == null)){
@@ -42,8 +42,10 @@ export function useEventListener(eventName: string, handler: DescribableFunction
       if (!isSupported) return;
 
       // Create event listener that calls handler function stored in ref
-      const eventListener = event => {
-        savedHandler.current(event);
+      const eventListener = (event:KeyboardEvent) => {
+        if(savedHandler.current){
+          savedHandler.current(event);
+        }
       }
 
       // Add event listener

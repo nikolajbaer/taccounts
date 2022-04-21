@@ -28,9 +28,9 @@ test('Ledger provides account balances', () => {
     .asset("Cash")
     .asset("Inventory")
     .asset("AR")
-    .equity("SE")
-    .equity("COGS")
-    .equity("Revenue")
+    .equity("SE",0,null,true)
+    .equity("COGS",0,null,false)
+    .equity("Revenue",0,null,true)
     .txn(
       new Transaction()
             .debit('Inventory/Widgets',10)

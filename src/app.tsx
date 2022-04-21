@@ -1,4 +1,4 @@
-import { useState,useEffect,useRef } from "preact/hooks"
+import { useState,useEffect,useRef } from "react"
 import { TAccount } from "./ui/taccount"
 import { Transaction } from "./model/transaction"
 import { Ledger } from "./model/ledger"
@@ -44,16 +44,16 @@ const test_ledger = new Ledger()
 window.ledger = test_ledger
 window.Transaction = Transaction
 
-export function App(props) {
-  const [selected,setSelected] = useState<number>(null)
+export function App() {
+  const [selected,setSelected] = useState<number|null>(null)
   const [showNewTransaction,setShowNewTransaction]  = useState<boolean>(false)
 
-  const handleKeyPress = ({key}) => {
+  const handleKeyPress = (event: KeyboardEvent) => {
     /* only handle shortcuts if body is focused */
-    if( document.activeElement.tagName != "BODY"){ return }
-    if(key == " " ){
+    if( document.activeElement == null || document.activeElement.tagName != "BODY"){ return }
+    if(event.key == " " ){
       setShowNewTransaction(true)
-    }else if(key == "Escape" && showNewTransaction){
+    }else if(event.key == "Escape" && showNewTransaction){
       setShowNewTransaction(false)
     }
   }
@@ -81,8 +81,9 @@ export function App(props) {
       <section className="accounts">
         {test_ledger.active_accounts().map( account_def => {
           return (<TAccount
+            key={account_def.account}
             account_def={account_def}
-            lines={test_ledger.lines_for(account_def.account,selected)}
+            lines={test_ledger.txn_for(account_def.account,selected)}
             balance={test_ledger.balance(account_def.account,selected)}
             selected={selected}
           ></TAccount>)

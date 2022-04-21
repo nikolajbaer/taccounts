@@ -1,5 +1,5 @@
 
-interface TxnLine {
+export interface TxnLine {
   account: string,
   debit: number,
   credit: number,
@@ -7,20 +7,28 @@ interface TxnLine {
   data: any | null
 }
 
+export interface TAccountLine {
+  index: number | null,
+  debit: number,
+  credit: number,
+  account: string,
+}
+
 export class TransactionValidationError extends Error { }
 
 export class Transaction {
-  ref: string | number
+  ref: string | number | null
   date: Date
   lines: TxnLine[]
   comment: string
-  index: number|null
+  index: number
 
-  constructor(ref: string | number | null = null,date: Date | null = null, index: number|null = null){
+  constructor(ref: string | number | null = null,date: Date | null = null, index: number = 0){
     this.ref = ref // TODO fill with crypto.randomUUID()?
     this.date = date == null ? new Date() : date
     this.lines = []
     this.index = index 
+    this.comment = ''
   }
 
   debit(account:string,amount:number,note:string | null = null, data: any | null = null){
@@ -45,11 +53,15 @@ export class Transaction {
     return this
   }
 
-  for(account:string){
+  touches(account:string): boolean {
+    return this.for(account).length > 0
+  }
+
+  for(account:string): TxnLine[] {
     return this.lines.filter( l => l.account.startsWith(account) )
   }
 
-  total_for(account:string){
+  total_for(account:string): TAccountLine{
     return {
       index: this.index,
       credit: this.for(account).reduce( (t,l) => t+l.credit, 0),
@@ -58,10 +70,17 @@ export class Transaction {
     }
   }
 
-  validate(){
+  is_valid(){
     const debits = this.lines.reduce( (t,l) => t+l.debit, 0)
     const credits = this.lines.reduce( (t,l) => t+l.credit, 0)
     if(debits != credits || this.lines.length == 0){
+      return false
+    }
+    return true
+  }
+
+  validate(){
+    if(!this.is_valid()){
       throw new TransactionValidationError("Credits and Debits do not match")
     }
     return this
@@ -76,7 +95,7 @@ export class Transaction {
     return this.lines.reduce( (a,l) => {
       a.push(l.account)
       return a
-    },[])
+    },new Array<string>())
   }
 }
 

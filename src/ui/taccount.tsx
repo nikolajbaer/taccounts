@@ -1,6 +1,8 @@
+import { AccountDef } from '../model/ledger'
+import { Transaction } from '../model/transaction'
 import { money } from '../util/helpers'
 
-export function TAccount(props) {
+export function TAccount(props: {account_def:AccountDef, lines: Transaction[], selected: number|null, balance: number }) {
 
   const credit_normal = props.account_def.credit_normal
   const bb = (props.account_def.beginning_balance?(
@@ -22,15 +24,15 @@ export function TAccount(props) {
       <div className="lines">
         {bb}
         {props.lines.map( l => {
-          return (<div className={"line" + ((props.selected==l.index)?" selected":"")}>
+          return (<div key={l.index} className={"line" + ((props.selected==l.index)?" selected":"")}>
             <div className="linestart"></div>
-            <div className="debit">{money(l.debit)}</div>
-            <div className="credit">{money(l.credit)}</div>
+            <div className="debit">{money(l.total_for(props.account_def.account).debit)}</div>
+            <div className="credit">{money(l.total_for(props.account_def.account).credit)}</div>
             <div className="lineend">
-              {l.note?(
+              {l.comment?(
                 <div>
                   *
-                  <div className="note">{l.note}</div>
+                  <div className="note">{l.comment}</div>
                 </div>
               ):''}
             </div>

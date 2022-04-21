@@ -55,7 +55,7 @@ export class Ledger {
     return this.define(account_name,AccountType.Equity,credit_normal,beginning_balance,name) 
   }
 
-  txn(transaction){
+  txn(transaction: Transaction): Ledger{
     transaction.validate()
     transaction.accounts().map( account => {
       if(this.get_account_def(account) == null){
@@ -68,11 +68,11 @@ export class Ledger {
     return this
   }
 
-  get(index:number){
+  get(index:number): Transaction {
     return this.transactions[index-1]
   }
 
-  get_account_def(account: string){
+  get_account_def(account: string): AccountDef | null {
     for(var i=0; i<this.account_def.length; i++){
       if( account.startsWith(this.account_def[i].account)){
         return this.account_def[i] 
@@ -83,13 +83,14 @@ export class Ledger {
     return null
   }
 
-  up_to(up_to:number|null){
+  up_to(up_to:number|null): Transaction[] {
     if(up_to == null){ return this.transactions }
-    return this.transactions.filter( t => t.index <= up_to )
+    return this.transactions.filter( t => t.index != null && t.index <= up_to )
   }
 
-  balance(account:string,up_to:number|null=null){
+  balance(account:string,up_to:number|null=null): number {
     const adef = this.get_account_def(account)
+    if( adef == null ){ return 0 }
     const bb = adef.beginning_balance?adef.beginning_balance:0
        
     return this.up_to(up_to).reduce( (a,txn) => {
@@ -99,18 +100,18 @@ export class Ledger {
     },bb)
   }
 
-  lines_for(account:string,up_to:number|null=null){
-    return this.up_to(up_to).reduce( (lines,txn) => {
-      lines.push(txn.total_for(account))
-      return lines
-    },[])
+  txn_for(account:string,up_to:number|null=null): Transaction[] {
+    return this.up_to(up_to).filter( (txn) => txn.touches(account) )
   }
 
   active_accounts(){
     const txn_accounts = Array.from(this.transactions.reduce( (accounts,txn) => {
       txn.lines.forEach( l => { 
         if(!accounts.has(l.account)){ 
-          accounts.set(l.account,this.get_account_def(l.account))
+          const adef = this.get_account_def(l.account)
+          if(adef != null){
+            accounts.set(l.account,adef)
+          }
         }
       })
       return accounts

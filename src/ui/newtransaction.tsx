@@ -1,8 +1,8 @@
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useState } from "react"
 import { Transaction,TransactionValidationError } from "../model/transaction"
 
-export function NewTransactionModal(props: { handleClose }){
-  const [transaction,setTransaction] = useState<Transaction>(null)
+export function NewTransactionModal(props: { handleClose: (transaction:Transaction) => void }){
+  const [transaction,setTransaction] = useState<Transaction|null>(null)
 
   useEffect( () => {
     if(transaction == null){
@@ -10,12 +10,12 @@ export function NewTransactionModal(props: { handleClose }){
     }
   })
 
-  const handleClick = (e) => {
-    try{
-      transaction.validate()
+  const handleClick = () => {
+    if(transaction == null){ return }
+    if(transaction.is_valid()){
       console.log(transaction)
       props.handleClose(transaction)
-    }catch(TransactionValidationError){
+    }else{
       alert("Transaction not valid")
     }
   }
@@ -26,14 +26,14 @@ export function NewTransactionModal(props: { handleClose }){
       <div>
         <input type="text" placeholder="Transaction Reference# (blank for auto-id)" />
       </div>
-      <div class="line header">
+      <div className="line header">
         <div>Account</div>
         <div>Debit</div>
         <div>Credit</div>
         <div>Notes</div>
       </div>
       {transaction!=null?(transaction.lines.map( l => {
-        return (<div class="line">
+        return (<div className="line">
               <input type="text" className="account" value="" />
               <input type="number" className="debit" value="" />
               <input type="number" className="credit" value="" />
