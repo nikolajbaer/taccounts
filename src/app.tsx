@@ -41,8 +41,8 @@ const test_ledger = new Ledger()
           .validate()
   )
 //DEBUG
-window.ledger = test_ledger
-window.Transaction = Transaction
+//window.ledger = test_ledger
+//window.Transaction = Transaction
 
 export function App() {
   const [selected,setSelected] = useState<number|null>(null)

@@ -18,7 +18,7 @@ export function money(amount:number,show_zero:boolean = false){
 
 
 type DescribableFunction = {
-  (event: {key:string}): void;
+  (event: KeyboardEvent): void;
 };
 // From https://usehooks.com/useEventListener/
 // Hook
@@ -42,9 +42,9 @@ export function useEventListener(eventName: string, handler: DescribableFunction
       if (!isSupported) return;
 
       // Create event listener that calls handler function stored in ref
-      const eventListener = (event:KeyboardEvent) => {
+      const eventListener = (event:Event) => {
         if(savedHandler.current){
-          savedHandler.current(event);
+          savedHandler.current(<KeyboardEvent>event);
         }
       }
 
