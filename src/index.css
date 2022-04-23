@@ -21,7 +21,6 @@ body {
   text-align: center;
   background-color: white;
   color: black;
-  font-size: 1.5em;
 }
 
 nav {
@@ -244,5 +243,12 @@ section.accounts {
 }
 
 .txn_add {
+  text-align: left;
+}
 
+.txn_add .lines .line {
+  display: grid;
+  grid-template-columns: 40% 15% 15% 20% 10%;
+  gap: 4px;
+  padding: 4px;
 }

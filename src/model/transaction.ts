@@ -31,7 +31,7 @@ export class Transaction {
     this.comment = ''
   }
 
-  debit(account:string,amount:number,note:string | null = null, data: any | null = null){
+  debit(account:string,amount:number,note:string | null = null, data: any | null = null): Transaction{
     this.lines.push({
       account: account,
       debit: amount,
@@ -42,7 +42,7 @@ export class Transaction {
     return this
   }
 
-  credit(account:string,amount:number,note:string | null = null, data: any | null = null){
+  credit(account:string,amount:number,note:string | null = null, data: any | null = null): Transaction{
     this.lines.push({
       account: account,
       debit: 0,
@@ -70,28 +70,24 @@ export class Transaction {
     }
   }
 
-  is_valid(){
+  validate(): Transaction {
     const debits = this.lines.reduce( (t,l) => t+l.debit, 0)
     const credits = this.lines.reduce( (t,l) => t+l.credit, 0)
-    if(debits != credits || this.lines.length == 0){
-      return false
+    if(this.lines.length < 2){
+      throw new TransactionValidationError("Transaction must have at least 1 debit and 1 credit") 
     }
-    return true
-  }
-
-  validate(){
-    if(!this.is_valid()){
-      throw new TransactionValidationError("Credits and Debits do not match")
+    if(debits != credits){
+      throw new TransactionValidationError("Debits must equal credits") 
     }
     return this
   }
 
-  add_comment(comment: string){
+  add_comment(comment: string): Transaction {
     this.comment = comment
     return this
   }
 
-  accounts(){
+  accounts(): string[] {
     return this.lines.reduce( (a,l) => {
       a.push(l.account)
       return a

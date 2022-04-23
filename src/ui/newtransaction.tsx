@@ -1,52 +1,70 @@
-import { useEffect, useState } from "react"
-import { Transaction,TransactionValidationError } from "../model/transaction"
+import { useEffect, useState, useRef } from "react"
+import { Transaction,TransactionValidationError, TxnLine } from "../model/transaction"
+import { TransactionLineInput } from "./transactionline"
+import { money } from "../util/helpers"
 
 export function NewTransactionModal(props: { handleClose: (transaction:Transaction) => void }){
-  const [transaction,setTransaction] = useState<Transaction|null>(null)
-
-  useEffect( () => {
-    if(transaction == null){
-      setTransaction(new Transaction())
-    }
-  })
+  const [transaction,updateTransaction] = useState<Transaction>(new Transaction())
+  const [lines,setLines] = useState<TxnLine[]>([])
+  const [txnref,setTxnRef] = useState<string>('')
 
   const handleClick = () => {
-    if(transaction == null){ return }
-    if(transaction.is_valid()){
+    try{
+      if(txnref){
+        transaction.ref = txnref
+      }
+      transaction.validate()
       console.log(transaction)
       props.handleClose(transaction)
-    }else{
-      alert("Transaction not valid")
+    }catch(e){
+      if( e instanceof TransactionValidationError){
+        alert(e.message) 
+      }
     }
+  }
+
+  const removeLine = (index:number) => {
+  }
+
+  const addLine = (account:string,debit:number|null,credit:number|null,note:string): void => {
+    if(debit != null){
+      transaction.debit(account,debit,note)
+    }else if(credit != null){
+      transaction.credit(account,credit,note)
+    }
+    setLines([...transaction.lines])
   }
 
   return (<div className="txn_add">
     <h4>Add Transaction</h4>
     <div>
       <div>
-        <input type="text" placeholder="Transaction Reference# (blank for auto-id)" />
+        <input type="text" placeholder="Transaction Reference# (blank for auto-id)" value={txnref} onChange={(e) => setTxnRef(e.target.value)} />
       </div>
-      <div className="line header">
-        <div>Account</div>
-        <div>Debit</div>
-        <div>Credit</div>
-        <div>Notes</div>
-      </div>
-      {transaction!=null?(transaction.lines.map( l => {
-        return (<div className="line">
-              <input type="text" className="account" value="" />
-              <input type="number" className="debit" value="" />
-              <input type="number" className="credit" value="" />
-              <input type="text" className="notes" value="" />
-              <button>add</button>
+      <div className="lines">
+        <div className="line header">
+          <div>Account</div>
+          <div>Debit</div>
+          <div>Credit</div>
+          <div>Notes</div>
         </div>
-        )
-      })):''}
+        {lines.map( (l,index) => {
+          return (<div key={index} className="line">
+            <span className="account">{l.account} </span>
+            <span className="debit">{money(l.debit)}</span>
+            <span className="credit">{money(l.credit)}</span> 
+            <span className="notes">{l.note}</span> 
+            <button onClick={() => removeLine(index)}>X</button>
+          </div>
+          )
+        })}
+        <TransactionLineInput onAdd={addLine}/>
       <div>
         <button onClick={handleClick}>Submit</button>
       </div>
     </div>
+  </div>
   </div>)
 }
 
-//function TransactionLine(props: {})
+
