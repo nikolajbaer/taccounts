@@ -244,6 +244,7 @@ section.accounts {
 
 .txn_add {
   text-align: left;
+  position: relative;
 }
 
 .txn_add .lines .line {
@@ -251,4 +252,12 @@ section.accounts {
   grid-template-columns: 40% 15% 15% 20% 10%;
   gap: 4px;
   padding: 4px;
+}
+
+.modal-content .close {
+  float: right;
+  border: none;
+  background-color: transparent;
+  font-weight: bold;
+  cursor: pointer;
 }

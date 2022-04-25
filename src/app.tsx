@@ -106,8 +106,10 @@ export function App() {
       {showNewTransaction?(
         <div className="modal">
           <div className="modal-content">
+            <button tabIndex={-1} onClick={() => setShowNewTransaction(false)} className="close">X</button>
             <NewTransactionModal
               handleClose={handleCloseNewTransaction}
+              accounts={test_ledger.accounts().map(a=>a.account)}
             ></NewTransactionModal>
           </div>
         </div>

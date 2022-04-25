@@ -3,7 +3,7 @@ import { Transaction,TransactionValidationError, TxnLine } from "../model/transa
 import { TransactionLineInput } from "./transactionline"
 import { money } from "../util/helpers"
 
-export function NewTransactionModal(props: { handleClose: (transaction:Transaction) => void }){
+export function NewTransactionModal(props: { handleClose: (transaction:Transaction|null) => void, accounts: string[] }){
   const [transaction,updateTransaction] = useState<Transaction>(new Transaction())
   const [lines,setLines] = useState<TxnLine[]>([])
   const [txnref,setTxnRef] = useState<string>('')
@@ -39,7 +39,7 @@ export function NewTransactionModal(props: { handleClose: (transaction:Transacti
     <h4>Add Transaction</h4>
     <div>
       <div>
-        <input type="text" placeholder="Transaction Reference# (blank for auto-id)" value={txnref} onChange={(e) => setTxnRef(e.target.value)} />
+        <input tabIndex={-1} type="text" placeholder="Transaction Reference# (blank for auto-id)" value={txnref} onChange={(e) => setTxnRef(e.target.value)} />
       </div>
       <div className="lines">
         <div className="line header">
@@ -58,7 +58,7 @@ export function NewTransactionModal(props: { handleClose: (transaction:Transacti
           </div>
           )
         })}
-        <TransactionLineInput onAdd={addLine}/>
+        <TransactionLineInput onAdd={addLine} accounts={props.accounts} />
       <div>
         <button onClick={handleClick}>Submit</button>
       </div>
