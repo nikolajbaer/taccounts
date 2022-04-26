@@ -3,7 +3,7 @@ import { money } from "../util/helpers"
 
 export function TransactionDetail(props: { transaction: Transaction }){
   return (<div className="txn_detail">
-    <h4>{props.transaction.ref?props.transaction.ref:`Transaction #${props.transaction.index}`}</h4>
+    <h4>{props.transaction.ref?`${props.transaction.ref} (#${props.transaction.index})`:`Transaction #${props.transaction.index}`}</h4>
     <div>
       <div className="line header">
         <div>Account</div>

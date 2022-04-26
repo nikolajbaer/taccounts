@@ -6,8 +6,9 @@ import { TransactionLog } from "./ui/transactionlog"
 import { TransactionDetail } from "./ui/transactiondetail"
 import { useEventListener } from "./util/helpers"
 import { NewTransactionModal } from "./ui/newtransaction"
+import { LedgerSerializer } from "./model/ledgerserializer"
 
-const test_ledger = new Ledger()
+const test_ledger = new Ledger("Test Ledger")
   .asset("Inventory")
   .asset("Cash",5)
   .asset("AR",0,"Accounts Receivable")
@@ -41,7 +42,7 @@ const test_ledger = new Ledger()
           .validate()
   )
 //DEBUG
-//window.ledger = test_ledger
+window.ledger = test_ledger
 //window.Transaction = Transaction
 
 export function App() {
@@ -61,6 +62,9 @@ export function App() {
   const handleCloseNewTransaction = (transaction:Transaction|null) => {
     if(transaction != null){
       test_ledger.txn(transaction)
+      const sz = new LedgerSerializer()
+      setSelected(test_ledger.latest_index())
+      console.log(sz.dump_csv(test_ledger))
     }
     setShowNewTransaction(false)
   }
@@ -101,6 +105,7 @@ export function App() {
           ledger={test_ledger}
           selected={selected}
           txnSelected={(txn) => setSelected(txn)}
+          onNewTxn={() => setShowNewTransaction(true)}
         ></TransactionLog>
       </section>
       {showNewTransaction?(

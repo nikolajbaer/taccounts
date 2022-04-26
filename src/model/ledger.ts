@@ -20,10 +20,12 @@ function sort_accounts(account_a:AccountDef,account_b:AccountDef){
 }
 
 export class Ledger {
+  name: string
   transactions: Transaction[]
   account_def: AccountDef[] 
 
-  constructor(transactions:Transaction[] = []){
+  constructor(name?:string,transactions:Transaction[] = []){
+    this.name = name?name:'My Ledger'
     this.transactions = transactions
     this.account_def = []
   }
@@ -127,5 +129,16 @@ export class Ledger {
   latest_index(){
     return this.transactions[this.transactions.length-1].index
   }
+
+  deserialize(obj:{transactions: Transaction[], account_def: AccountDef[]}): void{
+    // CONSIDER should we be validating this?
+    this.transactions = obj.transactions.map(o => {
+      const txn = Object.assign(new Transaction(),o)
+      txn.validate()
+      return txn
+    })
+    this.account_def = obj.account_def as AccountDef[]
+  }
+
 }
 

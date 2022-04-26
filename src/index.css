@@ -179,6 +179,7 @@ section.accounts {
   border-right: solid 1px black;
   padding: 10px 10px 20px 10px;
   z-index: 1000;
+  background-color: white;
 }
 
 .transaction_detail h4 {
@@ -261,3 +262,4 @@ section.accounts {
   font-weight: bold;
   cursor: pointer;
 }
+

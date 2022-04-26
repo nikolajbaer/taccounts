@@ -2,7 +2,12 @@ import { useState,useEffect } from "react"
 import { Ledger } from "../model/ledger"
 import { Transaction } from "../model/transaction"
 
-export function TransactionLog(props: { txnSelected: (txn_index:number) => void, selected: number|null, ledger: Ledger }){
+export function TransactionLog(props: { 
+    txnSelected: (txn_index:number) => void, 
+    selected: number|null, 
+    ledger: Ledger,
+    onNewTxn?: () => void,
+  }){
   const [stickySelected,setStickySelected] = useState<null|number>(null)
 
   function txnSelected(txn_index:number,sticky:boolean=false){
@@ -15,7 +20,9 @@ export function TransactionLog(props: { txnSelected: (txn_index:number) => void,
   }
 
   const handleNewTransaction = () => {
-    alert("Todo new transaction")
+    if(props.onNewTxn){
+      props.onNewTxn()
+    }
   }
 
   return (

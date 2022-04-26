@@ -18,13 +18,35 @@ test('transaction raises exception when not validated', () => {
             .debit('Cash',10)
             .credit('Revenue',10)
             .debit('COGS',5)
-  expect(() => t.validate()).toThrowError("Credits and Debits do not match")
+  expect(() => t.validate()).toThrowError("Debits must equal credits")
   t.credit('Inventory',5)
   expect(t.validate()).toBe(t)
 })
 
 test('Ledger provides account balances', () => {
-  const ledger = new Ledger()
+  const ledger = test_ledger()
+  expect(ledger.balance("Cash")).toBe(7)
+  expect(ledger.balance("COGS")).toBe(5)
+  // Test sub account matching
+  expect(ledger.balance("Inventory")).toBe(15)
+
+})
+
+test("Ledger can serialize/deserialize", () => {
+  const ledger = test_ledger()
+  const output = JSON.stringify(ledger)
+  const obj = JSON.parse(output)
+  expect(obj.transactions.length).toBe(ledger.transactions.length)
+
+  const new_ledger = new Ledger()
+  new_ledger.deserialize(obj)
+  expect(new_ledger.transactions.length).toBe(ledger.transactions.length)
+  expect(new_ledger.balance("Inventory")).toBe(ledger.balance("Inventory"))
+})
+
+
+const test_ledger = (): Ledger => {
+  return new Ledger()
     .asset("Cash")
     .asset("Inventory")
     .asset("AR")
@@ -54,10 +76,4 @@ test('Ledger provides account balances', () => {
             .add_comment("Invoice #1 Paid")
             .validate()
     )
-
-  expect(ledger.balance("Cash")).toBe(7)
-  expect(ledger.balance("COGS")).toBe(5)
-  // Test sub account matching
-  expect(ledger.balance("Inventory")).toBe(15)
-
-})
+}
