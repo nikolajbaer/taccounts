@@ -27,11 +27,21 @@ nav {
   height: 30px;
   background-color: black;
 }
+nav .right {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  padding-right: 8px;
+}
+nav .right button {
+  margin-right: 4px;
+}
 nav h1 {
-  margin: 0px;
+  margin: 0px auto;
   padding: 4px;
   font-size: 14pt;
   color: white;
+  width: 200px;
 }
 
 section.accounts {
@@ -118,9 +128,7 @@ section.accounts {
 }
 
 .account_type_A { background-color: lightgreen; }
-.account_type_CE { background-color: lightgreen; }
 .account_type_L { background-color: lightblue; }
-.account_type_CL { background-color: lightblue; }
 .account_type_E { background-color: orange; }
 
 

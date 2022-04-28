@@ -1,124 +1,102 @@
 import { useState,useEffect,useRef } from "react"
-import { TAccount } from "./ui/taccount"
-import { Transaction } from "./model/transaction"
-import { Ledger } from "./model/ledger"
-import { TransactionLog } from "./ui/transactionlog"
-import { TransactionDetail } from "./ui/transactiondetail"
-import { useEventListener } from "./util/helpers"
-import { NewTransactionModal } from "./ui/newtransaction"
 import { LedgerSerializer } from "./model/ledgerserializer"
+import { LedgerView } from "./ui/ledgerview"
+import { Ledger } from "./model/ledger"
+import { Transaction } from "./model/transaction"
 
-const test_ledger = new Ledger("Test Ledger")
-  .asset("Inventory")
-  .asset("Cash",5)
-  .asset("AR",0,"Accounts Receivable")
-  .asset("PPE",100,"Property, Plants & Equipment")
-  .liability("Sales Tax Payable")
-  .equity("SE",0,"Stockholder's Equity")
-  .equity("COGS",0,"Cost of Goods Sold",false)
-  .equity("Revenue")
-  .txn(
-    new Transaction()
-          .debit('Inventory',10)
-          .debit('Inventory',10)
-          .debit('Cash',2)
-          .credit('SE',22,"New Investor")
-          .add_comment('Initial investment')
-          .validate()
-  ).txn(
-    new Transaction()
-          .debit('AR',5)
-          .credit('Sales Tax Payable',1)
-          .credit('Revenue',4)
-          .debit('COGS',5)
-          .credit('Inventory',5)
-          .add_comment('Invoice #1')
-          .validate()
-  ).txn(
-    new Transaction()
-          .debit('Cash',5)
-          .credit('AR',5)
-          .add_comment("Invoice #1 Paid")
-          .validate()
-  )
-//DEBUG
-window.ledger = test_ledger
-//window.Transaction = Transaction
+const LOCAL_STORAGE_KEY = "ledger"
 
 export function App() {
-  const [selected,setSelected] = useState<number|null>(null)
-  const [showNewTransaction,setShowNewTransaction]  = useState<boolean>(false)
+  const [ledger,setLedger] = useState<Ledger|null>(null)
 
-  const handleKeyPress = (event: KeyboardEvent) => {
-    /* only handle shortcuts if body is focused */
-    if( document.activeElement == null || document.activeElement.tagName != "BODY"){ return }
-    if(event.key == " " ){
-      setShowNewTransaction(true)
-    }else if(event.key == "Escape" && showNewTransaction){
-      setShowNewTransaction(false)
+  const [showLedgerExport,setShowLedgerExport]  = useState<boolean>(false)
+  const [showLedgerImport,setShowLedgerImport]  = useState<boolean>(false)
+
+  useEffect(() => {
+    const loaded_ledger = loadFromLocalStorage(LOCAL_STORAGE_KEY)
+    if(loaded_ledger!=null){
+      setLedger(loaded_ledger)
+    }else{
+      setLedger(create_sample_ledger())
+    }
+  },[])
+
+  const saveToLocalStorage = (key:string): void => {
+    if(window.localStorage){
+      window.localStorage.setItem(key,JSON.stringify(ledger))
     }
   }
 
-  const handleCloseNewTransaction = (transaction:Transaction|null) => {
-    if(transaction != null){
-      test_ledger.txn(transaction)
-      const sz = new LedgerSerializer()
-      setSelected(test_ledger.latest_index())
-      console.log(sz.dump_csv(test_ledger))
+  const loadFromLocalStorage = (key:string): Ledger|null => {
+    console.log("loading from local storage")
+    if(window.localStorage){
+      const data = window.localStorage.getItem(key)
+      if(data){
+        try{
+          const obj = JSON.parse(data)
+          const new_ledger = new Ledger()
+          new_ledger.deserialize(obj)
+          console.log("new ledger",new_ledger)
+          return new_ledger 
+        }catch(e){
+          console.error("Error parsing ledger data in local storage. Clearing",key,data,e)
+          window.localStorage.removeItem(key)
+        }
+      }
     }
-    setShowNewTransaction(false)
+    return null 
   }
-
-  useEventListener('keydown', handleKeyPress, document)
-
-  useEffect( () => {
-    if(selected == null){
-      setSelected(test_ledger.latest_index())
-    }
-  })
 
   return (
     <>
       <nav>
         <h1>T-Accounts</h1>
-      </nav>
-      <section className="accounts">
-        {test_ledger.active_accounts().map( account_def => {
-          return (<TAccount
-            key={account_def.account}
-            account_def={account_def}
-            lines={test_ledger.txn_for(account_def.account,selected)}
-            balance={test_ledger.balance(account_def.account,selected)}
-            selected={selected}
-          ></TAccount>)
-        })}
-      </section>
-      {(selected==null||selected==0)?"":(
-        <section className="transaction_detail">
-          <TransactionDetail 
-            transaction={test_ledger.get(selected)}
-          ></TransactionDetail>
-        </section>
-      )}
-      <section className="transactions">
-        <TransactionLog
-          ledger={test_ledger}
-          selected={selected}
-          txnSelected={(txn) => setSelected(txn)}
-          onNewTxn={() => setShowNewTransaction(true)}
-        ></TransactionLog>
-      </section>
-      {showNewTransaction?(
-        <div className="modal">
-          <div className="modal-content">
-            <button tabIndex={-1} onClick={() => setShowNewTransaction(false)} className="close">X</button>
-            <NewTransactionModal
-              handleClose={handleCloseNewTransaction}
-              accounts={test_ledger.accounts().map(a=>a.account)}
-            ></NewTransactionModal>
-          </div>
+        <div className="right">
+          <button onClick={() => setShowLedgerImport(true)}>Import</button>
+          <button onClick={() => setShowLedgerExport(true)}>Export</button>
         </div>
-      ):''}
-    </>
+      </nav>
+      {ledger!=null?<LedgerView 
+        ledger={ledger} 
+        onLedgerChange={() => saveToLocalStorage(LOCAL_STORAGE_KEY)}
+      />:''}
+  </>
   )
+}
+
+function create_sample_ledger():Ledger {
+  const sample_ledger = new Ledger("Test Ledger")
+    .asset("Inventory")
+    .asset("Cash",5)
+    .asset("AR",0,"Accounts Receivable")
+    .asset("PPE",100,"Property, Plants & Equipment")
+    .liability("Sales Tax Payable")
+    .equity("SE",0,"Stockholder's Equity")
+    .equity("COGS",0,"Cost of Goods Sold",false)
+    .equity("Revenue")
+    .txn(
+      new Transaction()
+            .debit('Inventory',10)
+            .debit('Inventory',10)
+            .debit('Cash',2)
+            .credit('SE',22,"New Investor")
+            .add_comment('Initial investment')
+            .validate()
+    ).txn(
+      new Transaction()
+            .debit('AR',5)
+            .credit('Sales Tax Payable',1)
+            .credit('Revenue',4)
+            .debit('COGS',5)
+            .credit('Inventory',5)
+            .add_comment('Invoice #1')
+            .validate()
+    ).txn(
+      new Transaction()
+            .debit('Cash',5)
+            .credit('AR',5)
+            .add_comment("Invoice #1 Paid")
+            .validate()
+    )
+    return sample_ledger
 }

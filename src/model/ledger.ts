@@ -46,6 +46,12 @@ export class Ledger {
     })
     return this
   }
+
+  define_adef(account:AccountDef){
+    this.account_def.push(account) 
+    return this
+  }
+
   // Convenience functions for readable API
   asset(account_name: string,beginning_balance:number = 0,name: string|null = null,credit_normal:boolean=false){ 
     return this.define(account_name,AccountType.Asset,credit_normal,beginning_balance,name) 
@@ -107,6 +113,9 @@ export class Ledger {
   }
 
   active_accounts(){
+    if(this.transactions.length == 0){
+      return this.accounts()
+    }
     const txn_accounts = Array.from(this.transactions.reduce( (accounts,txn) => {
       txn.lines.forEach( l => { 
         if(!accounts.has(l.account)){ 
@@ -127,6 +136,7 @@ export class Ledger {
   }
 
   latest_index(){
+    if(this.transactions.length == 0){ return 0 }
     return this.transactions[this.transactions.length-1].index
   }
 
@@ -140,5 +150,8 @@ export class Ledger {
     this.account_def = obj.account_def as AccountDef[]
   }
 
+  empty():boolean{
+    return this.transactions.length == 0
+  }
 }
 

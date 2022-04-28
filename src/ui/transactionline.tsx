@@ -1,15 +1,22 @@
-import { useState } from "react"
-import { AccountDef } from "../model/ledger"
+import { useState,useEffect,useRef } from "react"
 
 export function TransactionLineInput(props: { 
     onAdd?: (account:string,debit:number|null,credit:number|null,note:string) => void,
     accounts: string[]
   }){
 
+
+  const selectAccountRef = useRef<HTMLSelectElement>(null)
   const [account,setAccount] = useState<string>('')
   const [debit,setDebit] = useState<number|null>(null)
   const [credit,setCredit] = useState<number|null>(null)
   const [note,setNote] = useState<string>('')
+
+  useEffect(() => {
+    if(selectAccountRef.current){
+      selectAccountRef.current.focus();
+    }
+  }, []);
 
   const handleAdd = (): void => {
     if(!account){
@@ -40,7 +47,7 @@ export function TransactionLineInput(props: {
   }
 
   return (<div className="line">
-    <select name="account" onChange={(e) => setAccount(e.target.value)}>
+    <select ref={selectAccountRef} name="account" onChange={(e) => setAccount(e.target.value)}>
       <option value="">Select Account</option>
       {props.accounts.map( (account:string,i:number) => {
         return (<option key={account} value={account}>{account}</option>)

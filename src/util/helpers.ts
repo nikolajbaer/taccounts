@@ -10,7 +10,7 @@ export function money(amount:number,show_zero:boolean = false){
   const val = Math.abs(amount).toLocaleString('en-US',{
     style:"currency",
     currency:'USD',
-    maximumFractionDigits: 0 // consider maybe we want to see precise amount?
+    maximumFractionDigits: (amount > 2 || amount  == 0)?0:2, // consider maybe we want to see precise amount?
   })
   if(amount < 0){ return `(${val})` }
   return val
