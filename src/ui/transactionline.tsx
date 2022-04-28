@@ -19,7 +19,7 @@ export function TransactionLineInput(props: {
   }, []);
 
   const handleAdd = (): void => {
-    if(!account){
+    if(!account || (!debit && !credit)){
       return
     }
     if(props.onAdd){
@@ -28,7 +28,10 @@ export function TransactionLineInput(props: {
       setDebit(null)
       setCredit(null)
       setNote('')
-      console.log("clearing line on add",account,debit,credit,note)
+      //console.log("clearing line on add",account,debit,credit,note)
+      if(selectAccountRef.current){
+        selectAccountRef.current.focus();
+      }
     }
   }
 
@@ -47,15 +50,15 @@ export function TransactionLineInput(props: {
   }
 
   return (<div className="line">
-    <select ref={selectAccountRef} name="account" onChange={(e) => setAccount(e.target.value)}>
-      <option value="">Select Account</option>
+    <select title="Account" value={account} ref={selectAccountRef} name="account" onChange={(e) => setAccount(e.target.value)}>
+      <option value={''}>Select Account</option>
       {props.accounts.map( (account:string,i:number) => {
         return (<option key={account} value={account}>{account}</option>)
       })}
     </select>
-    <input type="number" step="0.01" className="debit" value={debit!=null?debit:''} onChange={(e) => handleValueChange(e.target.value,null)} />
-    <input type="number" step="0.01" className="credit" value={credit!=null?credit:''} onChange={(e) => handleValueChange(null,e.target.value)} />
-    <input type="text" className="notes" value={note?note:''} placeholder="Notes" onChange={(e) => setNote(e.target.value)} />
+    <input title="Debit" type="number" step="0.01" className="debit" name="debit" value={debit!=null?debit:''} onChange={(e) => handleValueChange(e.target.value,null)} />
+    <input title="Credit" type="number" step="0.01" className="credit" name="credit" value={credit!=null?credit:''} onChange={(e) => handleValueChange(null,e.target.value)} />
+    <input title="Note" type="text" className="notes" value={note?note:''} placeholder="Notes" onChange={(e) => setNote(e.target.value)} />
     <button onClick={() => handleAdd()}>Add</button>
   </div>
   )

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { Transaction } from "./transaction";
-import { Ledger } from './ledger';
+import { Transaction } from "../model/transaction";
+import { Ledger } from '../model/ledger';
 
 test('transaction auto-creates date', () => {
   const t = new Transaction()
