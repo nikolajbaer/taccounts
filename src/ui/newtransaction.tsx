@@ -18,12 +18,13 @@ export function NewTransactionModal(props: { handleClose: (transaction:Transacti
       props.handleClose(transaction)
     }catch(e){
       if( e instanceof TransactionValidationError){
-        alert(e.message) 
       }
     }
   }
 
   const removeLine = (index:number) => {
+    transaction.remove_line(index)
+    setLines([...transaction.lines])
   }
 
   const addLine = (account:string,debit:number|null,credit:number|null,note:string): void => {
@@ -34,6 +35,15 @@ export function NewTransactionModal(props: { handleClose: (transaction:Transacti
     }
     setLines([...transaction.lines])
   }
+
+  let error:string = ''
+  try{
+    transaction.validate()
+  }catch(e){ 
+    if( e instanceof TransactionValidationError ){
+      error = e.message 
+    }
+ }
 
   return (<div className="txn_add">
     <h4>Add Transaction</h4>
@@ -54,13 +64,14 @@ export function NewTransactionModal(props: { handleClose: (transaction:Transacti
             <span className="debit">{money(l.debit)}</span>
             <span className="credit">{money(l.credit)}</span> 
             <span className="notes">{l.note}</span> 
-            <button onClick={() => removeLine(index)}>X</button>
+            <button title="Remove Line" onClick={() => removeLine(index)}>X</button>
           </div>
           )
         })}
         <TransactionLineInput onAdd={addLine} accounts={props.accounts} />
-      <div>
-        <button onClick={handleClick}>Submit</button>
+      <div className="button_row">
+        <button disabled={error!=''} onClick={handleClick}>Submit</button>
+        {error?(<span> {error}</span>):''}
       </div>
     </div>
   </div>

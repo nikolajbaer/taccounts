@@ -3,40 +3,41 @@ import { LedgerSerializer } from "./model/ledgerserializer"
 import { LedgerView } from "./ui/ledgerview"
 import { Ledger } from "./model/ledger"
 import { Transaction } from "./model/transaction"
-
-const LOCAL_STORAGE_KEY = "ledger"
+import { NewLedger } from "./ui/newledger"
 
 export function App() {
   const [ledger,setLedger] = useState<Ledger|null>(null)
 
   const [showLedgerExport,setShowLedgerExport]  = useState<boolean>(false)
   const [showLedgerImport,setShowLedgerImport]  = useState<boolean>(false)
+  const [showNewLedger,setShowNewLedger]  = useState<boolean>(false)
 
   useEffect(() => {
-    const loaded_ledger = loadFromLocalStorage(LOCAL_STORAGE_KEY)
+    const loaded_ledger = loadFromLocalStorage()
     if(loaded_ledger!=null){
       setLedger(loaded_ledger)
     }else{
-      setLedger(create_sample_ledger())
+      setLedger(new Ledger())
     }
   },[])
 
-  const saveToLocalStorage = (key:string): void => {
+  const saveToLocalStorage = (ledger:Ledger): void => {
     if(window.localStorage){
-      window.localStorage.setItem(key,JSON.stringify(ledger))
+      window.localStorage.setItem(ledger.name,JSON.stringify(ledger))
+      window.localStorage.setItem("current_ledger",ledger.name)
     }
   }
 
-  const loadFromLocalStorage = (key:string): Ledger|null => {
-    console.log("loading from local storage")
+  const loadFromLocalStorage = (): Ledger|null => {
     if(window.localStorage){
+      let key = window.localStorage.getItem("current_ledger")
+      if(!key){ key = "My Ledger" }
       const data = window.localStorage.getItem(key)
       if(data){
         try{
           const obj = JSON.parse(data)
-          const new_ledger = new Ledger()
+          const new_ledger = new Ledger(key)
           new_ledger.deserialize(obj)
-          console.log("new ledger",new_ledger)
           return new_ledger 
         }catch(e){
           console.error("Error parsing ledger data in local storage. Clearing",key,data,e)
@@ -47,6 +48,12 @@ export function App() {
     return null 
   }
 
+  const changeLedger = (new_ledger:Ledger):void => {
+    saveToLocalStorage(new_ledger)
+    setLedger(new_ledger)
+    setShowNewLedger(false)
+  }
+
   return (
     <>
       <nav>
@@ -54,49 +61,25 @@ export function App() {
         <div className="right">
           <button onClick={() => setShowLedgerImport(true)}>Import</button>
           <button onClick={() => setShowLedgerExport(true)}>Export</button>
+          <button onClick={() => setShowNewLedger(true)}>New</button>
         </div>
       </nav>
+      {showNewLedger?(
+        <div className="modal">
+          <div className="modal-content">
+            <button tabIndex={-1} onClick={() => setShowNewLedger(false)} className="close">✕</button>
+            <NewLedger
+              currentLedger={ledger}
+              onNewLedger={ledger => changeLedger(ledger)}
+              templates={[]} // TODO
+            ></NewLedger>
+          </div>
+        </div>
+      ):''}
       {ledger!=null?<LedgerView 
         ledger={ledger} 
-        onLedgerChange={() => saveToLocalStorage(LOCAL_STORAGE_KEY)}
+        onLedgerChange={() => saveToLocalStorage(ledger)}
       />:''}
   </>
   )
-}
-
-function create_sample_ledger():Ledger {
-  const sample_ledger = new Ledger("Test Ledger")
-    .asset("Inventory")
-    .asset("Cash",5)
-    .asset("AR",0,"Accounts Receivable")
-    .asset("PPE",100,"Property, Plants & Equipment")
-    .liability("Sales Tax Payable")
-    .equity("SE",0,"Stockholder's Equity")
-    .equity("COGS",0,"Cost of Goods Sold",false)
-    .equity("Revenue")
-    .txn(
-      new Transaction()
-            .debit('Inventory',10)
-            .debit('Inventory',10)
-            .debit('Cash',2)
-            .credit('SE',22,"New Investor")
-            .add_comment('Initial investment')
-            .validate()
-    ).txn(
-      new Transaction()
-            .debit('AR',5)
-            .credit('Sales Tax Payable',1)
-            .credit('Revenue',4)
-            .debit('COGS',5)
-            .credit('Inventory',5)
-            .add_comment('Invoice #1')
-            .validate()
-    ).txn(
-      new Transaction()
-            .debit('Cash',5)
-            .credit('AR',5)
-            .add_comment("Invoice #1 Paid")
-            .validate()
-    )
-    return sample_ledger
 }

@@ -24,9 +24,9 @@ export class Ledger {
   transactions: Transaction[]
   account_def: AccountDef[] 
 
-  constructor(name?:string,transactions:Transaction[] = []){
+  constructor(name?:string){
     this.name = name?name:'My Ledger'
-    this.transactions = transactions
+    this.transactions = []
     this.account_def = []
   }
 
@@ -152,6 +152,17 @@ export class Ledger {
 
   empty():boolean{
     return this.transactions.length == 0
+  }
+
+  rollback(count?:number): Transaction[] {
+    if(!count){ count = 1}
+    if(this.transactions.length == 0){ return [] }
+    const removed:Transaction[] = []
+    for(var i=0; i<count;i++){
+      const txn = this.transactions.pop()
+      if(txn){ removed.push(txn) }
+    }
+    return removed
   }
 }
 

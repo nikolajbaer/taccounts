@@ -13,6 +13,7 @@ export function LedgerView( props: { ledger: Ledger, onLedgerChange?: () => void
   const [selected,setSelected] = useState<number|null>(null)
   const [showNewTransaction,setShowNewTransaction]  = useState<boolean>(false)
   const [showNewAccount,setShowNewAccount]  = useState<boolean>(false)
+  const [showRollback,setShowRollback] = useState<boolean>(false)
 
   const handleKeyPress = (event: KeyboardEvent) => {
     /* only handle shortcuts if body is focused */
@@ -30,6 +31,7 @@ export function LedgerView( props: { ledger: Ledger, onLedgerChange?: () => void
       if(props.onLedgerChange){ props.onLedgerChange() }
     }
     setShowNewTransaction(false)
+    setSelected(props.ledger.latest_index())
   }
 
   const handleNewAccount = (account:AccountDef|null) => {
@@ -45,13 +47,15 @@ export function LedgerView( props: { ledger: Ledger, onLedgerChange?: () => void
   useEventListener('keydown', handleKeyPress, document)
 
   useEffect( () => {
-    if(selected == null){
-      setSelected(props.ledger.latest_index())
-    }
-  })
+    setAccounts([...props.ledger.accounts()])
+    setSelected(props.ledger.latest_index())
+  },[props.ledger])
+
+  const selectedTransaction  = selected?props.ledger.get(selected):props.ledger.get(props.ledger.latest_index())
 
   return (<>
       <section className="accounts">
+        <h2>{props.ledger.name}</h2>
         {accounts.map( account_def => {
           return (<TAccount
             key={account_def.account}
@@ -65,25 +69,26 @@ export function LedgerView( props: { ledger: Ledger, onLedgerChange?: () => void
           <button onClick={() => setShowNewAccount(true)}>+</button>
         </div>
       </section>
-      {(selected==null||selected==0)?"":(
+      {selectedTransaction?(
         <section className="transaction_detail">
           <TransactionDetail 
-            transaction={props.ledger.get(selected)}
+            transaction={selectedTransaction}
           ></TransactionDetail>
         </section>
-      )}
+      ):""}
       <section className="transactions">
         <TransactionLog
           ledger={props.ledger}
           selected={selected}
           txnSelected={(txn) => setSelected(txn)}
           onNewTxn={() => setShowNewTransaction(true)}
+          onRollback={() => setShowRollback(true)}
         ></TransactionLog>
       </section>
       {showNewTransaction?(
         <div className="modal">
           <div className="modal-content">
-            <button tabIndex={-1} onClick={() => setShowNewTransaction(false)} className="close">X</button>
+            <button tabIndex={-1} onClick={() => setShowNewTransaction(false)} className="close">✕</button>
             <NewTransactionModal
               handleClose={handleCloseNewTransaction}
               accounts={props.ledger.accounts().map(a=>a.account)}
@@ -94,12 +99,19 @@ export function LedgerView( props: { ledger: Ledger, onLedgerChange?: () => void
       {showNewAccount?(
         <div className="modal">
           <div className="modal-content">
-            <button tabIndex={-1} onClick={() => setShowNewAccount(false)} className="close">X</button>
+            <button tabIndex={-1} onClick={() => setShowNewAccount(false)} className="close">✕</button>
             <NewAccount
-//              handleClose={handleCloseNewTransaction}
               addNewAccount={handleNewAccount}
               accounts={props.ledger.accounts().map(a=>a.account)}
             ></NewAccount>
+          </div>
+        </div>
+      ):""}
+      {showRollback?(
+        <div className="modal">
+          <div className="modal-content">
+            <button tabIndex={-1} onClick={() => setShowRollback(false)} className="close">✕</button>
+            <h4>Rollback {selected}</h4>
           </div>
         </div>
       ):""}

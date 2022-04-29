@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { Transaction } from "../model/transaction";
 import { Ledger } from '../model/ledger';
+import { create_test_ledger } from './utils'
 
 test('transaction auto-creates date', () => {
   const t = new Transaction()
@@ -24,7 +25,7 @@ test('transaction raises exception when not validated', () => {
 })
 
 test('Ledger provides account balances', () => {
-  const ledger = test_ledger()
+  const ledger = create_test_ledger()
   expect(ledger.balance("Cash")).toBe(7)
   expect(ledger.balance("COGS")).toBe(5)
   // Test sub account matching
@@ -33,7 +34,7 @@ test('Ledger provides account balances', () => {
 })
 
 test("Ledger can serialize/deserialize", () => {
-  const ledger = test_ledger()
+  const ledger = create_test_ledger()
   const output = JSON.stringify(ledger)
   const obj = JSON.parse(output)
   expect(obj.transactions.length).toBe(ledger.transactions.length)
@@ -44,36 +45,3 @@ test("Ledger can serialize/deserialize", () => {
   expect(new_ledger.balance("Inventory")).toBe(ledger.balance("Inventory"))
 })
 
-
-const test_ledger = (): Ledger => {
-  return new Ledger()
-    .asset("Cash")
-    .asset("Inventory")
-    .asset("AR")
-    .equity("SE",0,null,true)
-    .equity("COGS",0,null,false)
-    .equity("Revenue",0,null,true)
-    .txn(
-      new Transaction()
-            .debit('Inventory/Widgets',10)
-            .debit('Inventory/DooDads',10)
-            .debit('Cash',2)
-            .credit('SE',22)
-            .add_comment('Initial investment')
-            .validate()
-    ).txn(
-      new Transaction()
-            .debit('AR',5)
-            .credit('Revenue',5)
-            .debit('COGS',5)
-            .credit('Inventory/Widgets',5)
-            .add_comment('Invoice #1')
-            .validate()
-    ).txn(
-      new Transaction()
-            .debit('Cash',5)
-            .credit('AR',5)
-            .add_comment("Invoice #1 Paid")
-            .validate()
-    )
-}

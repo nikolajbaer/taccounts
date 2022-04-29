@@ -9,6 +9,7 @@ export function NewAccount(props: { addNewAccount: (account:AccountDef) => void,
   const [beginningBalance,setBeginningBalance] = useState<number>(0)
 
   const handleAddClick = () => {
+    if(account.length<2){ return }
     if(props.addNewAccount){
       props.addNewAccount({
         account: account,
@@ -19,6 +20,9 @@ export function NewAccount(props: { addNewAccount: (account:AccountDef) => void,
       })
     }
   }
+
+  const name_exists = props.accounts.map( a =>a.toLowerCase() ).includes(account.toLowerCase())
+  const valid = account.length>=2 && !name_exists
 
   return (<div className="account_add">    
     <h4>Add Account</h4>
@@ -32,17 +36,19 @@ export function NewAccount(props: { addNewAccount: (account:AccountDef) => void,
     </div>
     <div onChange={(e) => console.log(e)}>
       <label>Account Type</label>
-      <div className="account_type account_type_A">
-        <input name="type" type="radio" value={AccountType.Asset} checked={accountType==AccountType.Asset} onChange={e => setAccountType(AccountType.Asset)} />
-        Asset
-      </div>
-      <div className="account_type account_type_L">
-        <input name="type" type="radio" value={AccountType.Liability} checked={accountType==AccountType.Liability} onChange={e => setAccountType(AccountType.Liability)} />
-        Liability
-      </div>
-      <div className="account_type account_type_E">
-        <input name="type" type="radio" value={AccountType.Equity} checked={accountType==AccountType.Equity} onChange={e => setAccountType(AccountType.Equity)} />
-        Equity
+      <div>
+        <div className="account_type account_type_A">
+          <input name="type" type="radio" value={AccountType.Asset} checked={accountType==AccountType.Asset} onChange={e => setAccountType(AccountType.Asset)} />
+          Asset
+        </div>
+        <div className="account_type account_type_L">
+          <input name="type" type="radio" value={AccountType.Liability} checked={accountType==AccountType.Liability} onChange={e => setAccountType(AccountType.Liability)} />
+          Liability
+        </div>
+        <div className="account_type account_type_E">
+          <input name="type" type="radio" value={AccountType.Equity} checked={accountType==AccountType.Equity} onChange={e => setAccountType(AccountType.Equity)} />
+          Equity
+        </div>
       </div>
     </div>
     <div>
@@ -53,8 +59,12 @@ export function NewAccount(props: { addNewAccount: (account:AccountDef) => void,
       <label>Beginning Balance</label>
       <input name="beginningBalance" type="number" min={0} value={beginningBalance} onChange={(e) => setBeginningBalance(Number(e.target.value))} /> 
     </div>
-    <div>
-      <button onClick={() => handleAddClick()}>Add</button>
+    <div className="submit">
+        <button disabled={!valid} onClick={() => handleAddClick()}>Add</button>
+        <div className="note">
+          {account.length<2?<span>Account name must be 3 characters or longer</span>:''}
+          {name_exists?<span>Account name already exists</span>:''}
+        </div>
     </div>
   </div>
   )

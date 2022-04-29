@@ -93,5 +93,9 @@ export class Transaction {
       return a
     },new Array<string>())
   }
+
+  remove_line(index:number){
+    this.lines.splice(index,1)
+  }
 }
 

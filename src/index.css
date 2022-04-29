@@ -22,7 +22,20 @@ body {
   background-color: white;
   color: black;
 }
-
+button {
+  background-color: cornflowerblue;
+  color: white;
+  border: none;
+  border-radius: 2pt;
+  padding: 4px;
+  font-size: 10pt;
+  min-width: 2em;
+  cursor: pointer;
+}
+button:disabled {
+  color: 999;
+  background-color: #888;
+}
 nav {
   height: 30px;
   background-color: black;
@@ -48,8 +61,18 @@ section.accounts {
   padding: 4px;
 }
 
+section.accounts h2 {
+  padding: 2px;
+  margin: 2px;
+  text-align: left;
+  font-size: 10pt;
+}
+
 .link {
   color: #fff;
+}
+.error {
+  color: red;
 }
 
 .taccount {
@@ -160,6 +183,11 @@ section.accounts {
   min-width: 20px;
   cursor: pointer;
 }
+.txn_log button {
+  float: left;
+  margin: 4px;
+}
+
 .txn_log .txn.selected {
   background-color: black;
   color: white;
@@ -263,11 +291,33 @@ section.accounts {
   padding: 4px;
 }
 
+.txn_add .button_row span {
+  font-size: 10pt;
+  color: #888;
+}
+
 .modal-content .close {
   float: right;
   border: none;
   background-color: transparent;
   font-weight: bold;
   cursor: pointer;
+  color: black;
 }
 
+.account_add > div {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 4px;
+}
+.account_add div label {
+  text-align: right;
+}
+.account_add div.submit {
+  margin-top: 8px;
+  display: block;
+}
+.account_add .note {
+  font-size: 8pt;
+  color: #888;
+}
